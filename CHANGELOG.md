@@ -6,6 +6,16 @@ follow [semantic versioning](https://semver.org).
 
 ## [Unreleased]
 
+### Added
+
+- The API contract: `go.CONTRACT`, the version of the spec the client is generated from. Every
+  answer's `Gridoverture-Contract` header is checked: another major raises
+  `IncompatibleContractError`, a newer minor works.
+- `DeprecatedApiWarning`, from a `Deprecation` or `Sunset` header, with its dates and link.
+- `go.__version__`.
+- A GitHub Release for every tag, with the wheel and the sdist, whose notes start with
+  `Gridoverture-Contract: X.Y.Z`.
+
 ## [0.1.0] - 2026-11-25
 
 Speaks the platform's public API at `6ff5bb625c93ab0c35b422ed9c79d786091ca7ed`.

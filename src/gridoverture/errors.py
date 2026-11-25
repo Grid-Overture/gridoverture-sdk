@@ -191,3 +191,30 @@ class JobTimeoutError(GridOvertureError, TimeoutError):
         self.kind = kind
         self.timeout = timeout
         super().__init__(f"{kind} job {job_id} did not end within {timeout} seconds")
+
+
+COMPATIBILITY = "https://github.com/Grid-Overture/gridoverture-sdk#compatibility"
+
+
+class IncompatibleContractError(GridOvertureError):
+    """
+    The platform answered with an API contract of another major version than the one this SDK
+    implements, so no request is read: install the SDK release that implements its major.
+    """
+
+    def __init__(self, platform_contract: str, sdk_contract: str, sdk_version: str):
+        self.platform_contract = platform_contract
+        self.sdk_contract = sdk_contract
+        major = platform_contract.split(".")[0]
+        super().__init__(
+            f"the platform speaks API contract {platform_contract}, and gridoverture "
+            f"{sdk_version} implements contract {sdk_contract}: install the SDK release for "
+            f"contract {major}.x that {COMPATIBILITY} lists"
+        )
+
+
+class DeprecatedApiWarning(FutureWarning):
+    """
+    The platform said, with a Deprecation or Sunset header, that a route the SDK called is
+    deprecated or will stop answering. A FutureWarning, so Python shows it by default.
+    """

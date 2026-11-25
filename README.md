@@ -144,18 +144,33 @@ request with a personal access token, sent as `Authorization: Bearer gop_...`.
 
 ## Versions
 
-The SDK and the platform are released separately. The SDK follows [semantic versioning](https://semver.org);
-before 1.0 a minor release may change the public API, and [the changelog](CHANGELOG.md) says how.
+The SDK and the platform are released separately, and meet at a versioned **API contract**: the
+platform's public API, with a semver version of its own. The SDK follows
+[semantic versioning](https://semver.org) too; before 1.0 a minor release may change its Python
+API, and [the changelog](CHANGELOG.md) says how.
 
-- **Which platform it speaks to.** Each release is generated from the platform's
-  `openapi.public.json`, vendored in [`spec/`](spec), at the platform version that
-  [`spec/PLATFORM_REF`](spec/PLATFORM_REF) names. The changelog repeats it for every release.
+- **Which contract it implements.** Each release is generated from the platform's
+  `openapi.public.json`, vendored in [`spec/`](spec); the spec's version is the contract, as
+  `go.CONTRACT`. Every GitHub Release says it on a line of its own,
+  `Gridoverture-Contract: 1.0.0`, which the platform's releases read.
+- **What it checks.** Every answer of the platform names its contract in a
+  `Gridoverture-Contract` header. A newer minor of the same major works: a minor only adds. Another
+  major raises `IncompatibleContractError`, naming both contracts and pointing here. A route the
+  platform deprecates (a `Deprecation` or `Sunset` header) becomes a `DeprecatedApiWarning` with its
+  dates.
 - **How it keeps up.** When the platform's public API grows, a pull request here takes the new
   spec, regenerates the client, and adds the hand-written layer for what is new.
 - **How the platform keeps it honest.** The platform pins the SDK at a tag and runs it against its
   own API in its tests, so a change on either side that breaks the other is caught before release.
 
-Pin a tag in what you install (`@v0.1.0`), not a branch.
+### Compatibility
+
+| SDK | API contract | Works with |
+|---|---|---|
+| v0.2.0 | 1.x | a platform that speaks contract 1, its `/v1` routes |
+| v0.1.0 | none | a platform from before the contract; later ones keep its unversioned routes as deprecated aliases until their sunset |
+
+Pin a tag in what you install (`@v0.2.0`), not a branch.
 
 ## Contributing
 

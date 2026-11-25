@@ -12,13 +12,16 @@ over HTTP, with asynchronous jobs, typed settings and results as tables.
 """
 
 from .client import Client, Jobs, Project, Projects, SourceFormat, StoredFile, Version, Versions
+from .contract import CONTRACT, SDK_VERSION
 from .edits import AddObject, Edit, RemoveObject, SetAttribute
 from .errors import (
     ApiError,
     AuthenticationError,
     ConflictError,
+    DeprecatedApiWarning,
     ForbiddenError,
     GridOvertureError,
+    IncompatibleContractError,
     InvalidRequestError,
     JobCancelledError,
     JobFailedError,
@@ -35,19 +38,25 @@ from .model import CimObject
 from .results import ExportedFile, PowerFlowResult, Table, ValidationResult
 from .settings import ExportFormat, ExportSettings, PowerFlowSettings, ValidationSettings
 
+__version__ = SDK_VERSION
+"""The version of this SDK."""
+
 __all__ = [
+    "CONTRACT",
     "AddObject",
     "ApiError",
     "AuthenticationError",
     "CimObject",
     "Client",
     "ConflictError",
+    "DeprecatedApiWarning",
     "Edit",
     "ExportFormat",
     "ExportSettings",
     "ExportedFile",
     "ForbiddenError",
     "GridOvertureError",
+    "IncompatibleContractError",
     "InvalidRequestError",
     "Job",
     "JobCancelledError",

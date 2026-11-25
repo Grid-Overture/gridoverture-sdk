@@ -41,6 +41,18 @@ with go.Client() as client:
     print(flow.buses.to_pandas()[["name", "v_pu", "angle_deg"]])
 ```
 
+## Compatibilidad
+
+El SDK y la plataforma se encuentran en un **contrato de API** versionado. Cada respuesta de la
+plataforma lo nombra en la cabecera `Gridoverture-Contract`: una minor más nueva del mismo major
+funciona, otro major lanza `IncompatibleContractError`, y una ruta obsoleta (`Deprecation` o
+`Sunset`) avisa con un `DeprecatedApiWarning` y sus fechas.
+
+| SDK | Contrato de API | Funciona con |
+|---|---|---|
+| v0.2.0 | 1.x | una plataforma que habla el contrato 1, sus rutas `/v1` |
+| v0.1.0 | ninguno | una plataforma anterior al contrato; las posteriores mantienen sus rutas sin versión como alias obsoletos hasta su retiro |
+
 ## Más
 
 - Qué puedes hacer, autenticación, versiones y cómo contribuir: el [README en inglés](README.md),

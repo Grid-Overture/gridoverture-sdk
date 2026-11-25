@@ -297,6 +297,7 @@ GridOvertureError
 │   ├── InvalidRequestError    422
 │   ├── RateLimitedError       429, too many requests in a minute
 │   └── ServerError            5xx
+├── IncompatibleContractError  the platform speaks another major of the API contract
 ├── ProjectNotFoundError       Projects.get found no project of that name (also a LookupError)
 ├── ObjectNotFoundError        Version.find found no object of that class and name (also a LookupError)
 ├── JobFailedError             job_id, kind, message
@@ -314,6 +315,28 @@ text as `detail` and the `X-Request-ID` header, when present, as `request_id`.
 
 A network failure (no connection, a timeout of one request) is httpx2's own
 `httpx2.TransportError`.
+
+## The API contract
+
+```python
+go.CONTRACT  # "1.0.0": the contract the SDK was generated from, spec/openapi.public.json's version
+go.__version__  # the SDK's own version
+```
+
+Every answer of the platform's API is checked, errors included, before it is read:
+
+- `Gridoverture-Contract: X.Y.Z` (or several, comma separated, while the platform serves two
+  majors): when none has the SDK's major, `IncompatibleContractError`, with `platform_contract` and
+  `sdk_contract`, and a message that says which contract's SDK release to install and where the
+  compatibility table is. A newer or older minor of the same major works. No header, or one that
+  is not semver, is not checked: a platform from before the contract sends none.
+- `Deprecation` (RFC 9745, `@<seconds>`, or an HTTP-date) or `Sunset` (RFC 8594, an HTTP-date):
+  a `DeprecatedApiWarning`, a `FutureWarning` that Python shows by default, naming the route, its
+  dates as `YYYY-MM-DD` and the `Link` with `rel="deprecation"` or `rel="sunset"`, once per client
+  for each distinct notice. `warnings.filterwarnings("error", category=go.DeprecatedApiWarning)`
+  turns it into an error, in a test suite for one.
+
+Answers from storage, through signed URLs, are not the platform's and are not checked.
 
 ## Examples
 
