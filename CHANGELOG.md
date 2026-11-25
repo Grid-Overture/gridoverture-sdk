@@ -6,6 +6,17 @@ follow [semantic versioning](https://semver.org).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-25
+
+Implements API contract 1.0.0, from the platform's public API at
+`35fb71a36b13d614a07f82e572a97c853065fcbf`.
+
+### Changed
+
+- The client calls the platform's routes under `/v1`, the contract's major. v0.1.0 called them
+  unversioned; the platform answers those as deprecated aliases until 2027-05-25.
+- The generated client knows `Me.account_kind` and `VersionIn.time_zone`.
+
 ### Added
 
 - The API contract: `go.CONTRACT`, the version of the spec the client is generated from. Every
@@ -38,5 +49,6 @@ The first release on its own repository.
 - The low-level client generated from the vendored `spec/openapi.public.json`, with
   `scripts/sync_openapi.py` and the `sync-openapi` workflow to take a newer one.
 
-[Unreleased]: https://github.com/Grid-Overture/gridoverture-sdk/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Grid-Overture/gridoverture-sdk/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Grid-Overture/gridoverture-sdk/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Grid-Overture/gridoverture-sdk/releases/tag/v0.1.0

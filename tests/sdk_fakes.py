@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """
 A fake of the API for the SDK's unit tests: canned answers by method and path, behind httpx2's
-MockTransport, and every request it was sent, so a test reads what the SDK asked for.
+MockTransport, and every request it was sent, so a test reads what the SDK asked for. The API
+answers only under /v1, the contract's major, and a test names its paths without it.
 """
 
 import json
@@ -11,6 +12,7 @@ import httpx2
 
 API = "http://api.test"
 STORAGE = "http://storage.test"
+MAJOR = "/v1"
 NOW = "2026-11-23T12:00:00Z"
 
 
@@ -26,7 +28,7 @@ class FakeApi:
 
     def handle(self, request):
         self.requests.append(request)
-        queued = self.answers.get((request.method, request.url.path))
+        queued = self.answers.get(key(request))
         if not queued:
             return problem(404, f"the fake has no {request.method} {request.url.path}")
         answer = queued.pop(0) if len(queued) > 1 else queued[0]
@@ -34,10 +36,20 @@ class FakeApi:
 
     def sent(self, method, path):
         """The requests sent to (method, path), in order."""
-        return [r for r in self.requests if (r.method, r.url.path) == (method, path)]
+        return [r for r in self.requests if key(r) == (method, path)]
 
     def body(self, method, path, index=-1):
         return json.loads(self.sent(method, path)[index].content)
+
+
+def key(request):
+    """A request's (method, path), the API's without its major; None for an API path outside it."""
+    path = request.url.path
+    if f"{request.url.scheme}://{request.url.host}" == API:
+        if not path.startswith(MAJOR + "/"):
+            return None
+        path = path.removeprefix(MAJOR)
+    return request.method, path
 
 
 def ok(body, status=200):

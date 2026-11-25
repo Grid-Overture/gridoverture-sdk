@@ -2,10 +2,10 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Grid Overture API",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "paths": {
-    "/me": {
+    "/v1/me": {
       "get": {
         "tags": [
           "me"
@@ -57,7 +57,7 @@
         }
       }
     },
-    "/projects": {
+    "/v1/projects": {
       "get": {
         "tags": [
           "projects"
@@ -142,7 +142,7 @@
         }
       }
     },
-    "/projects/{project_id}": {
+    "/v1/projects/{project_id}": {
       "get": {
         "tags": [
           "projects"
@@ -205,7 +205,7 @@
         }
       }
     },
-    "/uploads": {
+    "/v1/uploads": {
       "post": {
         "tags": [
           "uploads"
@@ -236,7 +236,7 @@
         }
       }
     },
-    "/uploads/{upload_id}/complete": {
+    "/v1/uploads/{upload_id}/complete": {
       "post": {
         "tags": [
           "uploads"
@@ -299,7 +299,7 @@
         }
       }
     },
-    "/artifacts/{artifact_id}": {
+    "/v1/artifacts/{artifact_id}": {
       "get": {
         "tags": [
           "artifacts"
@@ -362,7 +362,7 @@
         }
       }
     },
-    "/projects/{project_id}/versions": {
+    "/v1/projects/{project_id}/versions": {
       "post": {
         "tags": [
           "versions"
@@ -512,7 +512,7 @@
         }
       }
     },
-    "/versions/{version_id}": {
+    "/v1/versions/{version_id}": {
       "get": {
         "tags": [
           "versions"
@@ -575,7 +575,7 @@
         }
       }
     },
-    "/power-flows": {
+    "/v1/power-flows": {
       "post": {
         "tags": [
           "work"
@@ -627,7 +627,7 @@
         }
       }
     },
-    "/validations": {
+    "/v1/validations": {
       "post": {
         "tags": [
           "work"
@@ -679,7 +679,7 @@
         }
       }
     },
-    "/exports": {
+    "/v1/exports": {
       "post": {
         "tags": [
           "work"
@@ -731,7 +731,7 @@
         }
       }
     },
-    "/jobs/{job_id}/cancel": {
+    "/v1/jobs/{job_id}/cancel": {
       "post": {
         "tags": [
           "jobs"
@@ -805,7 +805,7 @@
         }
       }
     },
-    "/jobs": {
+    "/v1/jobs": {
       "get": {
         "tags": [
           "jobs"
@@ -841,7 +841,7 @@
         }
       }
     },
-    "/jobs/{job_id}": {
+    "/v1/jobs/{job_id}": {
       "get": {
         "tags": [
           "jobs"
@@ -1252,7 +1252,24 @@
               "editor",
               "administrator"
             ],
-            "title": "Role"
+            "title": "Role",
+            "description": "The role the request acts with: an editor at most for no work account"
+          },
+          "account_kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "work",
+                  "personal"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Kind",
+            "description": "work: an organization's account, as its provider says; personal: anyone's; null while no sign-in has told"
           }
         },
         "type": "object",
@@ -1917,13 +1934,43 @@
               }
             ],
             "title": "Edits"
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "title": "VersionIn",
-        "description": "A version from an uploaded file in a format the converter reads (`artifact_id` and `format`),\nor from a version of the same project and CIM edits to it (`parent_id` and `edits`). A CGMES\nmodel or a pf2xml export is uploaded as a zip of its files."
+        "description": "A version from an uploaded file in a format the converter reads (`artifact_id` and `format`),\nor from a version of the same project and CIM edits to it (`parent_id` and `edits`). A CGMES\nmodel or a pf2xml export is uploaded as a zip of its files. `time_zone` is the requester's, an\nIANA name (\"America/Santiago\"), which the conversion report is dated in; UTC when it is not\ngiven or not known."
       }
     }
-  }
+  },
+  "x-gridoverture-open-routes": [
+    {
+      "method": "GET",
+      "path": "/.well-known/oauth-authorization-server"
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/authorize"
+    },
+    {
+      "method": "POST",
+      "path": "/oauth/revoke"
+    },
+    {
+      "method": "POST",
+      "path": "/oauth/token"
+    }
+  ]
 }

@@ -8,7 +8,9 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.me_account_kind_type_0 import MeAccountKindType0
 from ..models.me_role import MeRole
+from ..types import UNSET, Unset
 from typing import cast
 from uuid import UUID
 
@@ -31,7 +33,9 @@ class Me:
             user_id (UUID):
             email (None | str):
             name (None | str):
-            role (MeRole):
+            role (MeRole): The role the request acts with: an editor at most for no work account
+            account_kind (MeAccountKindType0 | None | Unset): work: an organization's account, as its provider says;
+                personal: anyone's; null while no sign-in has told
      """
 
     tenant_id: UUID
@@ -40,6 +44,7 @@ class Me:
     email: None | str
     name: None | str
     role: MeRole
+    account_kind: MeAccountKindType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -62,6 +67,14 @@ class Me:
 
         role = self.role.value
 
+        account_kind: None | str | Unset
+        if isinstance(self.account_kind, Unset):
+            account_kind = UNSET
+        elif isinstance(self.account_kind, MeAccountKindType0):
+            account_kind = self.account_kind.value
+        else:
+            account_kind = self.account_kind
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -73,6 +86,8 @@ class Me:
             "name": name,
             "role": role,
         })
+        if account_kind is not UNSET:
+            field_dict["account_kind"] = account_kind
 
         return field_dict
 
@@ -120,6 +135,26 @@ class Me:
 
 
 
+        def _parse_account_kind(data: object) -> MeAccountKindType0 | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                account_kind_type_0 = MeAccountKindType0(data)
+
+
+
+                return account_kind_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(MeAccountKindType0 | None | Unset, data)
+
+        account_kind = _parse_account_kind(d.pop("account_kind", UNSET))
+
+
         me = cls(
             tenant_id=tenant_id,
             tenant_name=tenant_name,
@@ -127,6 +162,7 @@ class Me:
             email=email,
             name=name,
             role=role,
+            account_kind=account_kind,
         )
 
 

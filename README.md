@@ -38,7 +38,7 @@ and attributes are typed, and results come out as tables that turn into pandas D
 **1. Install** it, on Python 3.11 or later. The `pandas` extra adds `to_pandas()`.
 
 ```bash
-pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.1.0"
+pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.2.0"
 ```
 
 **2. Get a personal access token.** Sign in to the Grid Overture Studio, open the account menu,
@@ -75,7 +75,7 @@ your machine but Python.
 Everything the platform's public API offers, as Python objects. Each row is the method and the
 HTTP route under it.
 
-| | In Python | Over HTTP |
+| | In Python | Over HTTP, under `/v1` |
 |---|---|---|
 | **Projects** | `client.projects.list()`, `.get(name)`, `.get_by_id(id)`, `.create(name)` | `GET /projects`, `GET /projects/{id}`, `POST /projects` |
 | **Import a model** | `project.versions.import_file(path)`: `.raw`, `.m`, `.json`, `.veragrid`, `.cdf`, and CGMES or PowerFactory pf2xml as a zip or a folder | `POST /uploads`, `POST /uploads/{id}/complete`, `POST /projects/{id}/versions` |
@@ -168,7 +168,7 @@ API, and [the changelog](CHANGELOG.md) says how.
 | SDK | API contract | Works with |
 |---|---|---|
 | v0.2.0 | 1.x | a platform that speaks contract 1, its `/v1` routes |
-| v0.1.0 | none | a platform from before the contract; later ones keep its unversioned routes as deprecated aliases until their sunset |
+| v0.1.0 | none | a platform from before the contract; later ones answer its unversioned routes as deprecated aliases until their sunset, 2027-05-25 |
 
 Pin a tag in what you install (`@v0.2.0`), not a branch.
 

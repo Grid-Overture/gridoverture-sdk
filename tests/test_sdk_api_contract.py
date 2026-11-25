@@ -104,7 +104,7 @@ def test_a_deprecated_route_warns_with_its_dates_and_link(api, client):
 
     (warning,) = caught
     message = str(warning.message)
-    assert "GET /projects" in message
+    assert "GET /v1/projects" in message
     assert "2027-01-01" in message and "2027-06-30" in message
     assert "https://docs.example/v1" in message
 

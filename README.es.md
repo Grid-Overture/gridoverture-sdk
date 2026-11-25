@@ -23,7 +23,7 @@ se convierten en DataFrames de pandas.
 ## Inicio rápido
 
 ```bash
-pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.1.0"
+pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.2.0"
 
 export GRIDOVERTURE_URL=https://<la dirección de tu plataforma>
 export GRIDOVERTURE_TOKEN=gop_...   # Studio: menú de la cuenta, Access tokens, alcance write
@@ -51,7 +51,7 @@ funciona, otro major lanza `IncompatibleContractError`, y una ruta obsoleta (`De
 | SDK | Contrato de API | Funciona con |
 |---|---|---|
 | v0.2.0 | 1.x | una plataforma que habla el contrato 1, sus rutas `/v1` |
-| v0.1.0 | ninguno | una plataforma anterior al contrato; las posteriores mantienen sus rutas sin versión como alias obsoletos hasta su retiro |
+| v0.1.0 | ninguno | una plataforma anterior al contrato; las posteriores responden sus rutas sin versión como alias obsoletos hasta su retiro, el 2027-05-25 |
 
 ## Más
 
