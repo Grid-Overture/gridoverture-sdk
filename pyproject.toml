@@ -1,0 +1,62 @@
+[project]
+name = "gridoverture"
+version = "0.1.0"
+description = "Python SDK of the Grid Overture platform: import power network models, edit them, run power flows and read the results."
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Grid Overture" }]
+# Engineers' machines and notebooks, not the platform's images. Not 3.10, which reached its end of
+# life in October 2026 and which httpx2 does not support.
+requires-python = ">=3.11"
+dependencies = ["httpx2>=2.16", "attrs>=23"]
+keywords = ["power systems", "CGMES", "CIM", "power flow", "PSS/E", "MATPOWER", "pandapower"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+pandas = ["pandas>=2"]
+
+[project.urls]
+Homepage = "https://gridoverture.ai"
+Source = "https://github.com/Grid-Overture/gridoverture-sdk"
+Changelog = "https://github.com/Grid-Overture/gridoverture-sdk/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "openapi-python-client==0.30.0",
+    "pandas>=2",
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "spec", "scripts", "LICENSE", "README.md", "CHANGELOG.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src"]
+# The low-level client is generated from spec/ (make generate) and never edited.
+extend-exclude = ["src/gridoverture/_generated"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests", "scripts"]

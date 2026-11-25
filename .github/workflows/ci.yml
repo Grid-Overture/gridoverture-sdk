@@ -1,0 +1,87 @@
+name: ci
+
+# Lint, the generated client against spec/, the tests on every Python the SDK supports, and a
+# build of the package, on every pull request and on main.
+#
+# GitHub's own runners only: this repository is public, and a pull request from a fork must never
+# run on a machine of ours. GitHub does not bill a public repository's minutes.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Fails when pyproject.toml changed and uv.lock was not regenerated.
+  UV_LOCKED: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # setup-uv publishes no floating major tag: v10 does not resolve, only exact versions.
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      # The test suite checks this too; here it fails on its own line, with the files named.
+      - name: The generated client is what spec/ makes
+        run: |
+          uv run python scripts/generate.py
+          git add --intent-to-add src/gridoverture/_generated
+          git diff --exit-code --stat -- src/gridoverture/_generated \
+            || { echo "::error::src/gridoverture/_generated is stale: run make generate"; exit 1; }
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv sync
+      - run: uv run pytest
+
+  # What pip installs from a tag: the wheel builds, installs alone, and imports without the dev
+  # dependencies. On a tag, the tag must be the version pyproject.toml declares.
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - run: uv build
+      - name: The wheel installs and imports on its own
+        run: |
+          uv venv --python 3.11 "$RUNNER_TEMP/clean"
+          VIRTUAL_ENV="$RUNNER_TEMP/clean" uv pip install dist/*.whl
+          "$RUNNER_TEMP/clean/bin/python" -c "import gridoverture as go; print(go.Client)"
+      - name: The tag is the package's version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version=$(uv version --short)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME, but pyproject.toml says $version"
+            exit 1
+          fi

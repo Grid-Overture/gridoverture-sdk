@@ -1,0 +1,82 @@
+name: sync-openapi
+
+# Takes the platform's openapi.public.json at a tag (or a commit), regenerates the client from it,
+# runs the tests and opens a pull request with the routes that changed. Run it by hand from the
+# Actions tab, naming the platform's ref. The same steps, by hand, are in CONTRIBUTING.md.
+#
+# It needs two settings of this repository: the variable PLATFORM_REPOSITORY (owner/name of the
+# platform's repository) and the secret PLATFORM_READ_TOKEN, a fine-grained token that can read
+# that repository's contents and nothing else. "Allow GitHub Actions to create pull requests"
+# must be on. A pull request opened with GITHUB_TOKEN starts no workflow, which is why the tests
+# run here first; close and reopen it to run ci on it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "The platform's tag, as v0.2.0, or a commit"
+        required: true
+
+concurrency:
+  group: sync-openapi
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      UV_LOCKED: "1"
+      REF: ${{ inputs.ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+
+      - name: Fetch the platform's openapi.public.json
+        env:
+          GH_TOKEN: ${{ secrets.PLATFORM_READ_TOKEN }}
+          PLATFORM_REPOSITORY: ${{ vars.PLATFORM_REPOSITORY }}
+        run: |
+          case "$REF" in
+            *[!A-Za-z0-9._/-]*|"") echo "::error::not a ref: $REF"; exit 1 ;;
+          esac
+          gh api -H "Accept: application/vnd.github.raw" \
+            "repos/$PLATFORM_REPOSITORY/contents/services/api/openapi.public.json?ref=$REF" \
+            > "$RUNNER_TEMP/openapi.public.json"
+
+      - run: uv sync
+      - name: Vendor it and regenerate
+        run: uv run python scripts/sync_openapi.py "$REF" "$RUNNER_TEMP/openapi.public.json" > "$RUNNER_TEMP/changes.md"
+      - run: uv run ruff check .
+      - run: uv run pytest
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- spec src; then
+            echo "spec/ is already the platform's $REF: nothing to do"
+            exit 0
+          fi
+          branch="sync/platform-${REF//\//-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add spec src
+          git commit -m "feat: sync the client with the platform's public API at $REF"
+          git push --force origin "$branch"
+          {
+            echo "The platform's openapi.public.json at \`$REF\`, and the client regenerated from it."
+            echo
+            cat "$RUNNER_TEMP/changes.md"
+            echo
+            echo "The tests passed in the sync run. A new route has no hand-written layer yet:"
+            echo "add one here, with its tests and a CHANGELOG entry, before this is released."
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create --base main --head "$branch" \
+            --title "Sync with the platform's public API at $REF" --body-file "$RUNNER_TEMP/body.md"
