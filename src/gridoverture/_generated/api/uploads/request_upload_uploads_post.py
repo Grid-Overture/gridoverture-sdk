@@ -25,7 +25,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/uploads",
+        "url": "/v1/uploads",
     }
 
 

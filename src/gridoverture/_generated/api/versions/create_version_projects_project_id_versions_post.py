@@ -31,7 +31,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/projects/{project_id}/versions".format(project_id=quote(str(project_id), safe=""),),
+        "url": "/v1/projects/{project_id}/versions".format(project_id=quote(str(project_id), safe=""),),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -113,7 +113,11 @@ def sync_detailed(
             (`artifact_id` and `format`),
             or from a version of the same project and CIM edits to it (`parent_id` and `edits`). A
             CGMES
-            model or a pf2xml export is uploaded as a zip of its files.
+            model or a pf2xml export is uploaded as a zip of its files. `time_zone` is the
+            requester's, an
+            IANA name ("America/Santiago"), which the conversion report is dated in; UTC when it is
+            not
+            given or not known.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -155,7 +159,11 @@ def sync(
             (`artifact_id` and `format`),
             or from a version of the same project and CIM edits to it (`parent_id` and `edits`). A
             CGMES
-            model or a pf2xml export is uploaded as a zip of its files.
+            model or a pf2xml export is uploaded as a zip of its files. `time_zone` is the
+            requester's, an
+            IANA name ("America/Santiago"), which the conversion report is dated in; UTC when it is
+            not
+            given or not known.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -192,7 +200,11 @@ async def asyncio_detailed(
             (`artifact_id` and `format`),
             or from a version of the same project and CIM edits to it (`parent_id` and `edits`). A
             CGMES
-            model or a pf2xml export is uploaded as a zip of its files.
+            model or a pf2xml export is uploaded as a zip of its files. `time_zone` is the
+            requester's, an
+            IANA name ("America/Santiago"), which the conversion report is dated in; UTC when it is
+            not
+            given or not known.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -234,7 +246,11 @@ async def asyncio(
             (`artifact_id` and `format`),
             or from a version of the same project and CIM edits to it (`parent_id` and `edits`). A
             CGMES
-            model or a pf2xml export is uploaded as a zip of its files.
+            model or a pf2xml export is uploaded as a zip of its files. `time_zone` is the
+            requester's, an
+            IANA name ("America/Santiago"), which the conversion report is dated in; UTC when it is
+            not
+            given or not known.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

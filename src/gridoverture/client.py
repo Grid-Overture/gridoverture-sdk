@@ -40,6 +40,7 @@ from ._generated.models import ExportIn, PowerFlowIn, ProjectIn, ValidationIn, V
 from ._generated.models import Job as JobBody
 from ._generated.models import Project as ProjectBody
 from ._generated.models import Version as VersionBody
+from .contract import ContractCheck
 from .edits import Edit
 from .errors import ObjectNotFoundError, ProjectNotFoundError
 from .jobs import Job
@@ -489,6 +490,7 @@ class Client:
         if files_client is None:
             files_client = httpx2.Client(timeout=timeout, follow_redirects=True)
             self._owned.append(files_client)
+        http_client.event_hooks["response"].append(ContractCheck())
         self._base_url = str(http_client.base_url).rstrip("/")
         self._api = Api(http_client, files_client)
         self.projects = Projects(self._api)

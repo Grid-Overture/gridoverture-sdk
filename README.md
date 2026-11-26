@@ -38,7 +38,7 @@ and attributes are typed, and results come out as tables that turn into pandas D
 **1. Install** it, on Python 3.11 or later. The `pandas` extra adds `to_pandas()`.
 
 ```bash
-pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.1.0"
+pip install "gridoverture[pandas] @ git+https://github.com/Grid-Overture/gridoverture-sdk@v0.2.0"
 ```
 
 **2. Get a personal access token.** Sign in to the Grid Overture Studio, open the account menu,
@@ -75,7 +75,7 @@ your machine but Python.
 Everything the platform's public API offers, as Python objects. Each row is the method and the
 HTTP route under it.
 
-| | In Python | Over HTTP |
+| | In Python | Over HTTP, under `/v1` |
 |---|---|---|
 | **Projects** | `client.projects.list()`, `.get(name)`, `.get_by_id(id)`, `.create(name)` | `GET /projects`, `GET /projects/{id}`, `POST /projects` |
 | **Import a model** | `project.versions.import_file(path)`: `.raw`, `.m`, `.json`, `.veragrid`, `.cdf`, and CGMES or PowerFactory pf2xml as a zip or a folder | `POST /uploads`, `POST /uploads/{id}/complete`, `POST /projects/{id}/versions` |
@@ -144,18 +144,33 @@ request with a personal access token, sent as `Authorization: Bearer gop_...`.
 
 ## Versions
 
-The SDK and the platform are released separately. The SDK follows [semantic versioning](https://semver.org);
-before 1.0 a minor release may change the public API, and [the changelog](CHANGELOG.md) says how.
+The SDK and the platform are released separately, and meet at a versioned **API contract**: the
+platform's public API, with a semver version of its own. The SDK follows
+[semantic versioning](https://semver.org) too; before 1.0 a minor release may change its Python
+API, and [the changelog](CHANGELOG.md) says how.
 
-- **Which platform it speaks to.** Each release is generated from the platform's
-  `openapi.public.json`, vendored in [`spec/`](spec), at the platform version that
-  [`spec/PLATFORM_REF`](spec/PLATFORM_REF) names. The changelog repeats it for every release.
+- **Which contract it implements.** Each release is generated from the platform's
+  `openapi.public.json`, vendored in [`spec/`](spec); the spec's version is the contract, as
+  `go.CONTRACT`. Every GitHub Release says it on a line of its own,
+  `Gridoverture-Contract: 1.0.0`, which the platform's releases read.
+- **What it checks.** Every answer of the platform names its contract in a
+  `Gridoverture-Contract` header. A newer minor of the same major works: a minor only adds. Another
+  major raises `IncompatibleContractError`, naming both contracts and pointing here. A route the
+  platform deprecates (a `Deprecation` or `Sunset` header) becomes a `DeprecatedApiWarning` with its
+  dates.
 - **How it keeps up.** When the platform's public API grows, a pull request here takes the new
   spec, regenerates the client, and adds the hand-written layer for what is new.
 - **How the platform keeps it honest.** The platform pins the SDK at a tag and runs it against its
   own API in its tests, so a change on either side that breaks the other is caught before release.
 
-Pin a tag in what you install (`@v0.1.0`), not a branch.
+### Compatibility
+
+| SDK | API contract | Works with |
+|---|---|---|
+| v0.2.0 | 1.x | a platform that speaks contract 1, its `/v1` routes |
+| v0.1.0 | none | a platform from before the contract; later ones answer its unversioned routes as deprecated aliases until their sunset, 2027-05-25 |
+
+Pin a tag in what you install (`@v0.2.0`), not a branch.
 
 ## Contributing
 

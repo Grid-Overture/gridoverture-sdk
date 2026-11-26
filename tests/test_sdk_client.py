@@ -241,7 +241,7 @@ def test_a_suffix_that_does_not_tell_the_format_asks_for_it(client, api, tmp_pat
         client.projects.get("IEEE 14").versions.import_file(path)
     with pytest.raises(ValueError, match="not a format"):
         client.projects.get("IEEE 14").versions.import_file(path, format="psse")
-    assert [request.url.path for request in api.requests] == ["/projects", "/projects"]
+    assert [request.url.path for request in api.requests] == ["/v1/projects", "/v1/projects"]
 
 
 def test_a_refusal_carries_the_apis_code(client, api):

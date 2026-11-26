@@ -31,7 +31,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/uploads/{upload_id}/complete".format(upload_id=quote(str(upload_id), safe=""),),
+        "url": "/v1/uploads/{upload_id}/complete".format(upload_id=quote(str(upload_id), safe=""),),
     }
 
     _kwargs["json"] = body.to_dict()

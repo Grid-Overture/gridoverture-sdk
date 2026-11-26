@@ -1,6 +1,6 @@
 [project]
 name = "gridoverture"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python SDK of the Grid Overture platform: import power network models, edit them, run power flows and read the results."
 readme = "README.md"
 license = "AGPL-3.0-or-later"

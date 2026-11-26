@@ -1,0 +1,54 @@
+name: release
+
+# A GitHub Release for every version tag: its notes start with "Gridoverture-Contract: X.Y.Z" alone
+# on a line, the info.version of the vendored spec, which the platform's own release reads to know
+# which API contract this SDK release implements; then the version's CHANGELOG section. The wheel
+# and the sdist are attached. Never a draft or a prerelease, which the platform ignores.
+
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  UV_LOCKED: "1"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+
+      - name: The tag is the package's version
+        run: |
+          version=$(uv version --short)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME, but pyproject.toml says $version"
+            exit 1
+          fi
+
+      # What ci checks, again: a tag is never released from a tree that fails.
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run pytest
+
+      - run: uv build
+      - name: Release notes
+        run: uv run python scripts/release_notes.py "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md"

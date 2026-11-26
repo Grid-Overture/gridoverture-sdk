@@ -12,6 +12,7 @@ from .job_params import JobParams
 from .job_progress_type_0 import JobProgressType0
 from .job_result_type_0 import JobResultType0
 from .me import Me
+from .me_account_kind_type_0 import MeAccountKindType0
 from .me_role import MeRole
 from .power_flow_in import PowerFlowIn
 from .power_flow_in_engine import PowerFlowInEngine
@@ -50,6 +51,7 @@ __all__ = (
     "JobProgressType0",
     "JobResultType0",
     "Me",
+    "MeAccountKindType0",
     "MeRole",
     "PowerFlowIn",
     "PowerFlowInEngine",

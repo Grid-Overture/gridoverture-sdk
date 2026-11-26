@@ -30,19 +30,23 @@ T = TypeVar("T", bound="VersionIn")
 class VersionIn:
     """ A version from an uploaded file in a format the converter reads (`artifact_id` and `format`),
     or from a version of the same project and CIM edits to it (`parent_id` and `edits`). A CGMES
-    model or a pf2xml export is uploaded as a zip of its files.
+    model or a pf2xml export is uploaded as a zip of its files. `time_zone` is the requester's, an
+    IANA name ("America/Santiago"), which the conversion report is dated in; UTC when it is not
+    given or not known.
 
         Attributes:
             artifact_id (None | Unset | UUID):
             format_ (None | Unset | VersionInFormatType0):
             parent_id (None | Unset | UUID):
             edits (list[AddObject | RemoveObject | SetAttribute] | None | Unset):
+            time_zone (None | str | Unset):
      """
 
     artifact_id: None | Unset | UUID = UNSET
     format_: None | Unset | VersionInFormatType0 = UNSET
     parent_id: None | Unset | UUID = UNSET
     edits: list[AddObject | RemoveObject | SetAttribute] | None | Unset = UNSET
+    time_zone: None | str | Unset = UNSET
 
 
 
@@ -96,6 +100,12 @@ class VersionIn:
         else:
             edits = self.edits
 
+        time_zone: None | str | Unset
+        if isinstance(self.time_zone, Unset):
+            time_zone = UNSET
+        else:
+            time_zone = self.time_zone
+
 
         field_dict: dict[str, Any] = {}
 
@@ -109,6 +119,8 @@ class VersionIn:
             field_dict["parent_id"] = parent_id
         if edits is not UNSET:
             field_dict["edits"] = edits
+        if time_zone is not UNSET:
+            field_dict["time_zone"] = time_zone
 
         return field_dict
 
@@ -232,11 +244,22 @@ class VersionIn:
         edits = _parse_edits(d.pop("edits", UNSET))
 
 
+        def _parse_time_zone(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        time_zone = _parse_time_zone(d.pop("time_zone", UNSET))
+
+
         version_in = cls(
             artifact_id=artifact_id,
             format_=format_,
             parent_id=parent_id,
             edits=edits,
+            time_zone=time_zone,
         )
 
         return version_in
